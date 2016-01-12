@@ -165,7 +165,7 @@ var rentalModifications = [{
   'pickupDate': '2015-12-05'
 }];
 
-//exercise-1 and exercise-2
+//exercise-1-2-3
 var car;
 var locationTime;
 for (var i = 0; i < rentals.length; i++) {
@@ -193,6 +193,10 @@ for (var i = 0; i < rentals.length; i++) {
     discount = 0.5;
   }
   rentals[i].price *= (1-discount);
+  var commissionPart = rentals[i].price*0.3;
+  rentals[i].commission.insurance=commissionPart/2;
+  rentals[i].commission.assistance=locationTime;
+  rentals[i].commission.drivy=commissionPart-rentals[i].commission.insurance-rentals[i].commission.assistance;
 }
 
 console.log(cars);
