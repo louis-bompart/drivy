@@ -165,6 +165,7 @@ var rentalModifications = [{
   'pickupDate': '2015-12-05'
 }];
 
+//Some functions
 function getCar(id) {
   for (var i = 0; i < cars.length; i++) {
     if(cars[i].id===id)
@@ -218,6 +219,7 @@ function computePrice(rental) {
   rental.commission.drivy=dailyOptionPrice+commissionPart-rental.commission.insurance-rental.commission.assistance;
   return rental;
 }
+//Apply computePrice to all rentals
 for (var i = 0; i < rentals.length; i++) {
   rentals[i]=computePrice(rentals[i]);
 }
