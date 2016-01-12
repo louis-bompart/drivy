@@ -165,7 +165,7 @@ var rentalModifications = [{
   'pickupDate': '2015-12-05'
 }];
 
-//exercise-1
+//exercise-1 and exercise-2
 var car;
 var locationTime;
 for (var i = 0; i < rentals.length; i++) {
@@ -179,6 +179,20 @@ for (var i = 0; i < rentals.length; i++) {
   var date2 = new Date(rentals[i].pickupDate);
   locationTime = (date1.getTime()-date2.getTime())/8.64e+7+1;
   rentals[i].price = locationTime*car.pricePerDay+car.pricePerKm*rentals[i].distance;
+  var discount = 0;
+  if(locationTime>1)
+  {
+    discount = 0.1;
+  }
+  if(locationTime>4)
+  {
+    discount = 0.3;
+  }
+  if(locationTime>10)
+  {
+    discount = 0.5;
+  }
+  rentals[i].price *= (1-discount);
 }
 
 console.log(cars);
