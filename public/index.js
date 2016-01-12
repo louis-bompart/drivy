@@ -184,11 +184,10 @@ function getRental(id) {
 }
 
 //exercise-1-2-3-4
-
-for (var i = 0; i < rentals.length; i++) {
-  var car = getCar(rentals[i].carId);
-  var date1 = new Date(rentals[i].returnDate);
-  var date2 = new Date(rentals[i].pickupDate);
+function computePrice(rental) {
+  var car = getCar(rental.carId);
+  var date1 = new Date(rental.returnDate);
+  var date2 = new Date(rental.pickupDate);
   var locationTime = (date1.getTime()-date2.getTime())/8.64e+7+1;
 
   var discount = 0;
@@ -206,44 +205,68 @@ for (var i = 0; i < rentals.length; i++) {
   }
 
   var dailyOptionPrice=0;
-  if(rentals[i].options.deductibleReduction)
+  if(rental.options.deductibleReduction)
   {
     dailyOptionPrice+=4;
   }
 
-  rentals[i].price = locationTime*(car.pricePerDay+dailyOptionPrice)*(1-discount)+car.pricePerKm*rentals[i].distance;
+  rental.price = locationTime*(car.pricePerDay+dailyOptionPrice)*(1-discount)+car.pricePerKm*rental.distance;
 
-  var commissionPart = rentals[i].price*0.3;
-  rentals[i].commission.insurance=commissionPart/2;
-  rentals[i].commission.assistance=locationTime;
-  rentals[i].commission.drivy=dailyOptionPrice+commissionPart-rentals[i].commission.insurance-rentals[i].commission.assistance;
+  var commissionPart = rental.price*0.3;
+  rental.commission.insurance=commissionPart/2;
+  rental.commission.assistance=locationTime;
+  rental.commission.drivy=dailyOptionPrice+commissionPart-rental.commission.insurance-rental.commission.assistance;
+  return rental;
+}
+for (var i = 0; i < rentals.length; i++) {
+  rentals[i]=computePrice(rentals[i]);
 }
 
 //exercise-5
-
-for (var actor of actors) {
-  var rental = getRental(actor.rentalId);
-  for (var paymentToDo of actor.payment) {
-    switch (paymentToDo.who) {
-      case "driver":
-        paymentToDo.amount=rental.price;
-        break;
-      case "owner":
-        paymentToDo.amount=rental.price*0.7;
-        break;
-      case "insurance":
-        paymentToDo.amount=rental.commission.insurance;
-        break;
-      case "assistance":
-        paymentToDo.amount=rental.commission.assistance;
-        break;
-      case "drivy":
-        paymentToDo.amount=rental.commission.drivy;
-        break;
-      default:
+function updateActors()
+{
+  for (var i = 0; i < actors.length; i++) {
+    var actor=actors[i];
+    var rental = getRental(actor.rentalId);
+    for (var j = 0; j < actor.payment.length; j++) {
+      var paymentToDo= actor.payment[j];
+      switch (paymentToDo.who) {
+        case "driver":
+          paymentToDo.amount=rental.price;
+          break;
+        case "owner":
+          paymentToDo.amount=rental.price*0.7;
+          break;
+        case "insurance":
+          paymentToDo.amount=rental.commission.insurance;
+          break;
+        case "assistance":
+          paymentToDo.amount=rental.commission.assistance;
+          break;
+        case "drivy":
+          paymentToDo.amount=rental.commission.drivy;
+          break;
+        default:
+      }
     }
   }
 }
+
+updateActors();
+
+//exercise-6
+
+for (var i = 0; i < rentalModifications.length; i++) {
+  var modification = rentalModifications[i];
+  var rental = getRental(modification.rentalId);
+
+  for (var properties in modification) {
+    rental[properties] = modification[properties];
+  }
+  computePrice(rental);
+}
+
+updateActors();
 
 console.log(cars);
 console.log(rentals);
