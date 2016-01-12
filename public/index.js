@@ -178,7 +178,7 @@ for (var i = 0; i < rentals.length; i++) {
   var date1 = new Date(rentals[i].returnDate);
   var date2 = new Date(rentals[i].pickupDate);
   locationTime = (date1.getTime()-date2.getTime())/8.64e+7+1;
-  
+
   var discount = 0;
   if(locationTime>1)
   {
@@ -192,7 +192,13 @@ for (var i = 0; i < rentals.length; i++) {
   {
     discount = 0.5;
   }
-  rentals[i].price = locationTime*car.pricePerDay*(1-discount)+car.pricePerKm*rentals[i].distance;
+  var dailyOptionPrice=0;
+  if(rentals[i].options.deductibleReduction)
+  {
+    dailyOptionPrice+=4;
+  }
+
+  rentals[i].price = locationTime*(car.pricePerDay+dailyOptionPrice)*(1-discount)+car.pricePerKm*rentals[i].distance;
 
   var commissionPart = rentals[i].price*0.3;
   rentals[i].commission.insurance=commissionPart/2;
