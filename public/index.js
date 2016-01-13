@@ -154,7 +154,7 @@ var actors = [{
   }]
 }];
 
-//list of rental modifcation
+//list of rental modification
 //useful for exercise 6
 var rentalModifications = [{
   'rentalId': '1-pb-92',
@@ -168,7 +168,7 @@ var rentalModifications = [{
 //Some functions
 function getCar(id) {
   for (var i = 0; i < cars.length; i++) {
-    if(cars[i].id===id)
+    if(cars[i].id === id)
     {
       return cars[i];
     }
@@ -177,85 +177,110 @@ function getCar(id) {
 
 function getRental(id) {
   for (var i = 0; i < rentals.length; i++) {
-    if(rentals[i].id===id)
+    if(rentals[i].id === id)
     {
       return rentals[i];
     }
   }
 }
 
+function getActor(id) {
+  for (var i = 0; i < actors.length; i++) {
+    if(actors[i].rentalId === id)
+    {
+      return actors[i];
+    }
+  }
+}
+
+function display()
+{
+  console.log(cars);
+  console.log(rentals);
+  console.log(actors);
+  console.log(rentalModifications);
+}
+
 //exercise-1-2-3-4
+
+//Compute the price of all rentals.
+for (var i = 0; i < rentals.length; i++) {
+  computePrice(rentals[i]);
+}
+//Compute the price of the attribute
 function computePrice(rental) {
   var car = getCar(rental.carId);
   var date1 = new Date(rental.returnDate);
   var date2 = new Date(rental.pickupDate);
   var locationTime = (date1.getTime()-date2.getTime())/8.64e+7+1;
 
-  var discount = 0;
-  if(locationTime>1)
-  {
-    discount = 0.1;
-  }
-  if(locationTime>4)
-  {
-    discount = 0.3;
-  }
-  if(locationTime>10)
-  {
-    discount = 0.5;
-  }
+  var discount = computeDiscount(locationTime);
 
-  var dailyOptionPrice=0;
-  if(rental.options.deductibleReduction)
-  {
-    dailyOptionPrice+=4;
-  }
+  var dailyOptionPrice = rental.options.deductibleReduction ? 4 : 0;
 
-  rental.price = locationTime*(car.pricePerDay+dailyOptionPrice)*(1-discount)+car.pricePerKm*rental.distance;
+  rental.price = locationTime * (car.pricePerDay+dailyOptionPrice) * (1-discount) + car.pricePerKm * rental.distance;
 
   var commissionPart = rental.price*0.3;
   rental.commission.insurance=commissionPart/2;
   rental.commission.assistance=locationTime;
   rental.commission.drivy=dailyOptionPrice+commissionPart-rental.commission.insurance-rental.commission.assistance;
-  return rental;
 }
-//Apply computePrice to all rentals
-for (var i = 0; i < rentals.length; i++) {
-  rentals[i]=computePrice(rentals[i]);
+//Compute and return the discount from the location duration.
+function computeDiscount(locationTime)
+{
+  if(locationTime>1)
+  {
+    return 0.1
+  }
+  if(locationTime>4)
+  {
+    return 0.3;
+  }
+  if(locationTime>10)
+  {
+    return 0.5;
+  }
+  return 0;
 }
 
 //exercise-5
+
 function updateActors()
 {
   for (var i = 0; i < actors.length; i++) {
-    var actor=actors[i];
-    var rental = getRental(actor.rentalId);
-    for (var j = 0; j < actor.payment.length; j++) {
-      var paymentToDo= actor.payment[j];
-      switch (paymentToDo.who) {
-        case "driver":
-          paymentToDo.amount=rental.price;
-          break;
-        case "owner":
-          paymentToDo.amount=rental.price*0.7;
-          break;
-        case "insurance":
-          paymentToDo.amount=rental.commission.insurance;
-          break;
-        case "assistance":
-          paymentToDo.amount=rental.commission.assistance;
-          break;
-        case "drivy":
-          paymentToDo.amount=rental.commission.drivy;
-          break;
-        default:
-      }
-    }
+    computeActor(actors[i]);
   }
 }
 
 updateActors();
 
+function computeActor(actor)
+{
+  var rental = getRental(actor.rentalId);
+  for (var j = 0; j < actor.payment.length; j++) {
+    var paymentToDo= actor.payment[j];
+    switch (paymentToDo.who) {
+      case "driver":
+        paymentToDo.amount=rental.price;
+        break;
+      case "owner":
+        paymentToDo.amount=rental.price*0.7;
+        break;
+      case "insurance":
+        paymentToDo.amount=rental.commission.insurance;
+        break;
+      case "assistance":
+        paymentToDo.amount=rental.commission.assistance;
+        break;
+      case "drivy":
+        paymentToDo.amount=rental.commission.drivy;
+        break;
+    }
+  }
+}
+
+//Breakpoint needed for intermediate display.
+//display();
 //exercise-6
 
 for (var i = 0; i < rentalModifications.length; i++) {
@@ -266,11 +291,7 @@ for (var i = 0; i < rentalModifications.length; i++) {
     rental[properties] = modification[properties];
   }
   computePrice(rental);
+  computeActor(getActor(modification.rentalId));
 }
 
-updateActors();
-
-console.log(cars);
-console.log(rentals);
-console.log(actors);
-console.log(rentalModifications);
+display();
